@@ -14,7 +14,7 @@ using PublicApi.Controllers.Base;
 using System;
 
 namespace PublicAPI.Controllers.Public;
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "AdminLevel2")]
+//[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "AdminLevel2")]
 public class TranscationBasesController : ApiControllerBase
 {
     private readonly ILogger<TranscationBasesController> _logger;
@@ -74,7 +74,8 @@ public class TranscationBasesController : ApiControllerBase
     {
         if (!_DistributedCache.TryGetValue(ListCache.TranscationBaseCacheKey, out IEnumerable<TranscationBaseDto>? PersonDtos))
         {
-            return await Mediator.Send(new GetTranscationBaseQuery { Id = id });
+            var _result= await Mediator.Send(new GetTranscationBaseQuery { Id = id });
+            return _result;
         }
 
         return PersonDtos.FirstOrDefault(d => d.Id == id);

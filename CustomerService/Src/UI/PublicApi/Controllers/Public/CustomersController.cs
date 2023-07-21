@@ -14,7 +14,7 @@ using PublicApi.Controllers.Base;
 using System;
 
 namespace PublicAPI.Controllers.Public;
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "AdminLevel2")]
+//[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "AdminLevel2")]
 public class CustomersController : ApiControllerBase
 {
     private readonly ILogger<CustomersController> _logger;
@@ -73,7 +73,10 @@ public class CustomersController : ApiControllerBase
     {
         if (!_DistributedCache.TryGetValue(ListCache.CustomerCacheKey, out IEnumerable<CustomerDto>? PersonDtos))
         {
-            return await Mediator.Send(new GetCustomerQuery { Id = id });
+           
+            var _result= await Mediator.Send(new GetCustomerQuery { Id = id });
+
+            return _result;
         }
 
         return PersonDtos.FirstOrDefault(d => d.Id == id);
