@@ -2,7 +2,7 @@
 using MMLib.SwaggerForOcelot.DependencyInjection;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
-using Ocelot.Provider.Polly;
+
 
 namespace APIGateway;
 
@@ -33,7 +33,7 @@ public class Startup
 
 
 
-        
+
 
         //var identityUrl = Configuration.GetValue<string>("IdentityUrl");
         //var authenticationProviderKey = "IdentityApiKey";
@@ -54,7 +54,7 @@ public class Startup
         //services.AddHttpContextAccessor();
 
 
-        
+
         //services.AddControllers();
         //services.AddEndpointsApiExplorer();
 
@@ -86,9 +86,9 @@ public class Startup
 
         // Add services to the container.
 
-      
 
-        services.AddOcelot(Configuration).AddPolly();
+
+        services.AddOcelot(Configuration);//.AddPolly();
         services.AddSwaggerForOcelot(Configuration);
 
 

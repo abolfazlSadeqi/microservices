@@ -10,8 +10,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Models;
+using Polly;
+using Polly.CircuitBreaker;
+using Polly.Fallback;
+using Polly.Retry;
 using PublicApi.Controllers.Base;
 using System;
+using System.Net.Http;
 
 namespace PublicAPI.Controllers.Public;
 //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "AdminLevel2")]
@@ -19,11 +24,26 @@ public class TranscationBasesController : ApiControllerBase
 {
     private readonly ILogger<TranscationBasesController> _logger;
     private readonly IDistributedCache _DistributedCache;
+    private readonly AsyncCircuitBreakerPolicy _circuitBreakerPolicy;
+   
 
-    public TranscationBasesController(ILogger<TranscationBasesController> logger, IDistributedCache DistributedCache)
+    private readonly AsyncRetryPolicy _retryPolicy;
+
+    public TranscationBasesController(ILogger<TranscationBasesController> logger, IDistributedCache DistributedCache
+      )
     {
         _logger = logger;
         _DistributedCache = DistributedCache;
+        //_fallbackPolicy = Policy<IActionResult>.Handle<Exception>()
+        //   .FallbackAsync(Content(" Please try again later"));
+
+        _retryPolicy = Policy.Handle<Exception>().RetryAsync(2);
+        if (_circuitBreakerPolicy == null)
+        {
+            _circuitBreakerPolicy = Policy.Handle<Exception>()
+                                            .CircuitBreakerAsync(2, TimeSpan.FromMinutes(1));
+        }
+
     }
 
 
@@ -35,11 +55,11 @@ public class TranscationBasesController : ApiControllerBase
 
 
     #region
-    private async Task<ActionResult<PaginatedList<TranscationBaseDto>>> _GetTranscationBasesWithPagination([FromQuery] 
+    private async Task<ActionResult<PaginatedList<TranscationBaseDto>>> _GetTranscationBasesWithPagination([FromQuery]
     GetTranscationBasesWithPaginationQuery query)
     {
         _logger.LogInformation("start_TranscationBase");
-        
+
 
         if (!_DistributedCache.TryGetValue(ListCache.TranscationBaseCacheKey, out IEnumerable<TranscationBaseDto>? TranscationBaseDtos))
         {
@@ -54,7 +74,10 @@ public class TranscationBasesController : ApiControllerBase
 
             _logger.LogInformation("Count_TranscationBase =" + _listTranscationBaseDtoalls.Result.Items.Count);
 
-            return await Mediator.Send(query);
+            var result = _circuitBreakerPolicy.ExecuteAsync(() => Mediator.Send(query));
+            return await result;
+
+           // return await Mediator.Send(query);
         }
 
         var item = TranscationBaseDtos.Skip((query.PageNumber - 1) * query.PageSize).Take(query.PageSize).ToList();
@@ -74,9 +97,18 @@ public class TranscationBasesController : ApiControllerBase
     {
         if (!_DistributedCache.TryGetValue(ListCache.TranscationBaseCacheKey, out IEnumerable<TranscationBaseDto>? PersonDtos))
         {
-            var _result= await Mediator.Send(new GetTranscationBaseQuery { Id = id });
-            return _result;
+            var result = _retryPolicy.ExecuteAsync(() => Mediator.Send(new GetTranscationBaseQuery { Id = id }));
+            return await result;
+
+            //return await _fallbackPolicy.ExecuteAsync(async () =>
+            //{
+            //    Mediator.Send(new GetTranscationBaseQuery { Id = id });
+
+            //});
+
         }
+
+
 
         return PersonDtos.FirstOrDefault(d => d.Id == id);
 
