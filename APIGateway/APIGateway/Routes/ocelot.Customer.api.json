@@ -1,0 +1,22 @@
+{
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "https",
+      "SwaggerKey": "customer",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "7025"
+        }
+      ],
+      "UpstreamPathTemplate": "/Customer/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+﻿{
+  "SwaggerEndPoints": [
+    {
+      "Key": "transaction",
+      "TransformByOcelotConfig": true,
+      "Config": [
+        {
+          "Name": "Transaction.API",
+          "Version": "1.0",
+          "Url": "https://localhost:8035/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "customer",
+      "TransformByOcelotConfig": true, //copy okay or orginal Data
+      "Config": [
+        {
+          "Name": "Customer.API",
+          "Version": "1.0",
+          "Url": "https://locaLhost:7025/swagger/v1/swagger.json"
+        }
+      ]
+    }
+
+  ]
+}

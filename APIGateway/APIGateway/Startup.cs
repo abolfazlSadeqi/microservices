@@ -1,89 +1,147 @@
 ﻿
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Ocelot.Middleware;
+using MMLib.SwaggerForOcelot.DependencyInjection;
 using Ocelot.DependencyInjection;
+using Ocelot.Middleware;
+using Ocelot.Provider.Polly;
 
-namespace APIGateway
+namespace APIGateway;
+
+public class Startup
 {
-    public class Startup
+    //public Startup(IConfiguration configuration)
+    //{
+    //    Configuration = configuration;
+
+       
+
+    //}
+
+    public Startup(IConfiguration configuration, IWebHostEnvironment  environment)
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
+        Configuration = configuration;
+        Environment = environment;
+    }
+
+    public IConfiguration Configuration { get; }
+
+    public IWebHostEnvironment  Environment { get; }
+
+   // public IConfiguration Configuration { get; }
+
+    public void ConfigureServices(IServiceCollection services)
+    {
 
 
-
-
-        }
 
         
 
-        public IConfiguration Configuration { get; }
+        //var identityUrl = Configuration.GetValue<string>("IdentityUrl");
+        //var authenticationProviderKey = "IdentityApiKey";
+        ////…
+        //services.AddAuthentication()
+        //    .AddJwtBearer(authenticationProviderKey, x =>
+        //    {
+        //        x.Authority = identityUrl;
+        //        x.RequireHttpsMetadata = false;
+        //        x.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+        //        {
+        //            ValidAudiences = new[] { "TransactionService", "CustomerService" }
+        //        };
+        //    });
+        //...
 
-        public void ConfigureServices(IServiceCollection services)
+        //services.AddControllers();
+        //services.AddHttpContextAccessor();
+
+
+        
+        //services.AddControllers();
+        //services.AddEndpointsApiExplorer();
+
+        // services.AddOcelot();
+
+        //services.AddSwaggerForOcelot(Configuration);
+        //  services.AddSwaggerGen();
+
+        // services.AddOcelot(Configuration);
+
+        // Swagger for ocelot
+
+        //    services.AddSwaggerForOcelot(Configuration);
+
+
+
+
+        //Configuration.AddOcelotWithSwaggerSupport(options =>
+        //{
+        //    options.Folder = routes;
+        //});
+
+
+
+        //  var environment = Environment.
+        //builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
+        //    .AddOcelot(routes, builder.Environment)
+        //    .AddEnvironmentVariables();
+
+        // Add services to the container.
+
+      
+
+        services.AddOcelot(Configuration).AddPolly();
+        services.AddSwaggerForOcelot(Configuration);
+
+
+        var routes = "Routes";
+        var _Directory = Directory.GetCurrentDirectory();
+        services.AddSingleton<IConfiguration>(provider => new ConfigurationBuilder()
+              .AddOcelotWithSwaggerSupport(options =>
+              {
+                  options.Folder = routes;
+              }).SetBasePath(_Directory).AddOcelot(routes, null)//.AddEnvironmentVariables()
+              .Build()
+              );
+
+        services.AddControllers();
+        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+        services.AddEndpointsApiExplorer();
+
+        // Swagger for ocelot
+        services.AddSwaggerGen();
+    }
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+
+
+
+        // Configure the HTTP request pipeline.
+        
+            app.UseSwagger();
+
+
+        app.UseRouting();//error message suggested to implement this
+        app.UseStaticFiles();//error message suggested to implement this
+
+        app.UseHttpsRedirection();
+
+        app.UseAuthorization();
+        //app.UseOcelot().Wait();
+
+        app.UseSwaggerForOcelotUI(options =>
         {
+            options.PathToSwaggerGenerator = "/swagger/docs";
+            options.ReConfigureUpstreamSwaggerJson = AlterUpstream.AlterUpstreamSwaggerJson;
 
-            services.AddSingleton<IConfiguration>(provider => new ConfigurationBuilder()
-                   .AddEnvironmentVariables()
-                   .AddJsonFile("ocelot.json")
-                   .Build());
+        }).UseOcelot().Wait();
 
-            services.AddControllers();
-            services.AddHttpContextAccessor();
+        //   app.MapControllers();
 
-
-
-            services.AddControllers();
-            services.AddEndpointsApiExplorer();
-
-            services.AddOcelot();
-
-
-
-        }
-
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        app.UseEndpoints(endpoints =>
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            endpoints.MapControllers();
+        });
+        // Configure the HTTP request pipeline.
 
-
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
-            
-            //app.UseHttpsRedirection();
-            app.UseRouting();
-         //   app.UseAuthorization();
-         
-
-            app.UseOcelot().Wait();
-
-
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-            // Configure the HTTP request pipeline.
-
-        }
     }
 }

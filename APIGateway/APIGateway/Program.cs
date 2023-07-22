@@ -1,52 +1,56 @@
-
 using APIGateway;
-using Microsoft.AspNetCore;
-using Microsoft.Extensions.Configuration;
+using MMLib.SwaggerForOcelot.DependencyInjection;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 
-public class Program
+
+var builder = WebApplication.CreateBuilder(args);
+
+var routes = "Routes";
+
+builder.Configuration.AddOcelotWithSwaggerSupport(options =>
 {
-    public static void Main(string[] args)
-    {
-        CreateHostBuilder(args).Build().Run();
-    }
+    options.Folder = routes;
+});
 
-    public static IHostBuilder CreateHostBuilder(string[] args) =>
-        Host.CreateDefaultBuilder(args)
-            .ConfigureWebHostDefaults(webBuilder =>
-            {
-                webBuilder.UseStartup<Startup>();
+builder.Services.AddOcelot(builder.Configuration);//.AddPolly();
+builder.Services.AddSwaggerForOcelot(builder.Configuration);
 
-            });
+var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
+    .AddOcelot(routes, builder.Environment)
+    .AddEnvironmentVariables();
 
 
+// Add services to the container.
 
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
 
+// Swagger for ocelot
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
 }
 
 
+app.UseHttpsRedirection();
 
-//using Ocelot.DependencyInjection;
-//using Ocelot.Middleware;
+app.UseAuthorization();
 
-//var builder = WebApplication.CreateBuilder(args);
+app.UseSwaggerForOcelotUI(options =>
+{
+    options.PathToSwaggerGenerator = "/swagger/docs";
+    options.ReConfigureUpstreamSwaggerJson = AlterUpstream.AlterUpstreamSwaggerJson;
 
-//builder.Configuration.SetBasePath(builder.Environment.ContentRootPath)
-//    .AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
-//// .AddJsonFile($"ocelot.{builder.Environment.EnvironmentName}.json", optional: false, reloadOnChange: true);
-////.AddEnvironmentVariables();
-//builder.Services.AddOcelot();
-//var app = builder.Build();
+}).UseOcelot().Wait();
 
-//app.UseRouting();
-//app.UseOcelot();
-//app.UseOcelot().Wait();
+app.MapControllers();
 
-//app.UseEndpoints(endpoints => {
-//    endpoints.MapGet("/", async context => {
-//        await context.Response.WriteAsync("Hello World!");
-//    });
-//});
-
-//app.Run();
+app.Run();

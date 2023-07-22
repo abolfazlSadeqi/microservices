@@ -6,11 +6,13 @@ using Common.UI.Method;
 using FluentValidation.AspNetCore;
 using Infrastructure;
 using Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Exceptions;
 using Serilog.Sinks.Elasticsearch;
 using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 
 namespace PublicApi;
@@ -37,9 +39,27 @@ public class Startup
 
         HelperBaseService.ConfigureService(services, Configuration);
 
-        HelperAuthentication.ConfigureService(services, Configuration);
+       // HelperAuthentication.ConfigureService(services, Configuration);
 
         HelperSwagger.ConfigureService(services);
+
+
+        //// prevent from mapping "sub" claim to nameidentifier.
+        //JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+        //var identityUrl = Configuration.GetValue<string>("IdentityUrl");
+
+        //services.AddAuthentication(options =>
+        //{
+        //    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        //    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+        //}).AddJwtBearer(options =>
+        //{
+        //    options.Authority = identityUrl;
+        //    options.RequireHttpsMetadata = false;
+        //    options.Audience = "TransactionService";
+        //});
 
 
         //services.AddControllersWithViews(options =>
