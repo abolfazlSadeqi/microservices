@@ -34,8 +34,7 @@ public class TranscationBasesController : ApiControllerBase
     {
         _logger = logger;
         _DistributedCache = DistributedCache;
-        //_fallbackPolicy = Policy<IActionResult>.Handle<Exception>()
-        //   .FallbackAsync(Content(" Please try again later"));
+    
 
         _retryPolicy = Policy.Handle<Exception>().RetryAsync(2);
         if (_circuitBreakerPolicy == null)
