@@ -3,24 +3,25 @@
     {
       "DownstreamPathTemplate": "/api/{everything}",
       "DownstreamScheme": "https",
-      "SwaggerKey": "customer",
+      "SwaggerKey": "AuthServer",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "7025"
+          "Port": "3035"
         }
       ],
-      "UpstreamPathTemplate": "/Customer/{everything}",
+      "UpstreamPathTemplate": "/Auth/{everything}",
       "UpstreamHttpMethod": [
         "GET",
         "POST",
         "PUT",
         "DELETE"
-      ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": []
-      }
+      ]
+      //,"AuthenticationOptions": {
+      //  "AuthenticationProviderKey": "Yh2k7QSu4l8CZg5p6X3Pna9L0Miy4D3Bvt0JVr87UcOj69Kqw5R2Nmf4FWs03Hdx",
+      //  "AllowedScopes": []
+
+      //}
     }
   ]
 }

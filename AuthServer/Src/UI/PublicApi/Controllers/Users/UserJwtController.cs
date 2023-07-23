@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Models.AccessJwt;
+using Newtonsoft.Json.Linq;
 using PublicApi.Controllers.Base;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -11,8 +12,6 @@ using System.Text;
 
 namespace PublicAPI.Controllers.Users;
 
-[Route("api/[controller]")]
-[ApiController]
 public class UserJwtController : ApiControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
@@ -24,7 +23,13 @@ public class UserJwtController : ApiControllerBase
         _configuration = configuration;
     }
 
-    [HttpPost]
+    [HttpGet]
+    [Route("Getdata")]
+    public async Task<IActionResult> Getdata([FromBody] UserLogin model)
+    {
+        return  Ok(new { token = "test" + model.Username, expiration = "test" });
+    }
+        [HttpPost]
     [Route("login")]
     public async Task<IActionResult> Login([FromBody] UserLogin model)
     {
@@ -45,34 +50,34 @@ public class UserJwtController : ApiControllerBase
 
     }
 
-    [HttpPost]
-    [Route("register")]
-    public async Task<IActionResult> Register([FromBody] UserRegistration model)
-    {
-        if (!ModelState.IsValid)
-            return StatusCode(StatusCodes.Status100Continue, "Not Valid");
+    //[HttpPost]
+    //[Route("register")]
+    //public async Task<IActionResult> Register([FromBody] UserRegistration model)
+    //{
+    //    if (!ModelState.IsValid)
+    //        return StatusCode(StatusCodes.Status100Continue, "Not Valid");
 
-        var userExists = await _userManager.FindByNameAsync(model.Username);
+    //    var userExists = await _userManager.FindByNameAsync(model.Username);
 
-        if (userExists != null) return StatusCode(StatusCodes.Status500InternalServerError, "username exists");
+    //    if (userExists != null) return StatusCode(StatusCodes.Status500InternalServerError, "username exists");
 
-        ApplicationUser user = new()
-        {
-            Email = model.Email,
-            SecurityStamp = Guid.NewGuid().ToString(),
-            UserName = model.Username,
-            FirstName = model.FirstName,
-            LastName = model.LastName,
-            Title = model.Title,
-            BirthDate = model.BirthDate,
-        };
+    //    ApplicationUser user = new()
+    //    {
+    //        Email = model.Email,
+    //        SecurityStamp = Guid.NewGuid().ToString(),
+    //        UserName = model.Username,
+    //        FirstName = model.FirstName,
+    //        LastName = model.LastName,
+    //        Title = model.Title,
+    //        BirthDate = model.BirthDate,
+    //    };
 
-        var result = await _userManager.CreateAsync(user, model.Password);
+    //    var result = await _userManager.CreateAsync(user, model.Password);
 
-        if (!result.Succeeded) return StatusCode(StatusCodes.Status500InternalServerError, "Failed to create user");
+    //    if (!result.Succeeded) return StatusCode(StatusCodes.Status500InternalServerError, "Failed to create user");
 
-        return Ok("created successfully");
-    }
+    //    return Ok("created successfully");
+    //}
 
 
 }

@@ -19,7 +19,7 @@ using System;
 using System.Net.Http;
 
 namespace PublicAPI.Controllers.Public;
-//[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "AdminLevel2")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class TranscationBasesController : ApiControllerBase
 {
     private readonly ILogger<TranscationBasesController> _logger;

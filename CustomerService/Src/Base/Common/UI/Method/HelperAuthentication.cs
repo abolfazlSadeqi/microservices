@@ -11,71 +11,70 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Common.UI.Method
+namespace Common.UI.Method;
+
+public class HelperAuthentication
 {
-    public class HelperAuthentication
+    public static void ConfigureService(IServiceCollection services, IConfiguration configuration)
     {
-        public static void ConfigureService(IServiceCollection services, IConfiguration configuration)
+
+        services.AddAuthentication(options =>
+        {
+            var _result = GEtActionAuthenticationOptions();
+            options.DefaultAuthenticateScheme = _result.DefaultAuthenticateScheme;
+            options.DefaultChallengeScheme = _result.DefaultChallengeScheme;
+            options.DefaultScheme = _result.DefaultScheme;
+        })
+       .AddJwtBearer(options =>
+       {
+           var _result = GetJwtBearerOptions(configuration);
+           options.IncludeErrorDetails = _result.IncludeErrorDetails;
+           options.SaveToken = _result.SaveToken; options.RequireHttpsMetadata = _result.RequireHttpsMetadata;
+           options.TokenValidationParameters = _result.TokenValidationParameters;
+       });
+
+    }
+
+    static JwtBearerOptions GetJwtBearerOptions(IConfiguration configuration)
+    {
+        return new JwtBearerOptions()
+        {
+            IncludeErrorDetails = true,
+
+            SaveToken = true,
+            RequireHttpsMetadata = false,
+            TokenValidationParameters = GetTokenValidationParameters(configuration),
+        };
+    }
+    static AuthenticationOptions GEtActionAuthenticationOptions()
+    {
+        return new AuthenticationOptions()
         {
 
-            services.AddAuthentication(options =>
-            {
-                var _result = GEtActionAuthenticationOptions();
-                options.DefaultAuthenticateScheme = _result.DefaultAuthenticateScheme;
-                options.DefaultChallengeScheme = _result.DefaultChallengeScheme;
-                options.DefaultScheme = _result.DefaultScheme;
-            })
-           .AddJwtBearer(options =>
-            {
-                var _result = GetJwtBearerOptions(configuration);
-                options.IncludeErrorDetails = _result.IncludeErrorDetails;
-                options.SaveToken = _result.SaveToken; options.RequireHttpsMetadata = _result.RequireHttpsMetadata;
-                options.TokenValidationParameters = _result.TokenValidationParameters;
-            });
+            DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme,
+            DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme,
+            DefaultScheme = JwtBearerDefaults.AuthenticationScheme
+        };
+    }
 
-        }
-
-        static JwtBearerOptions GetJwtBearerOptions(IConfiguration configuration)
+    static TokenValidationParameters GetTokenValidationParameters(IConfiguration configuration)
+    {
+        return new TokenValidationParameters()
         {
-            return new JwtBearerOptions()
-            {
-                IncludeErrorDetails = true,
+            ValidateIssuer = true,
+            ValidateAudience = true,
 
-                SaveToken = true,
-                RequireHttpsMetadata = false,
-                TokenValidationParameters = GetTokenValidationParameters(configuration),
-            };
-        }
-        static AuthenticationOptions GEtActionAuthenticationOptions()
-        {
-            return new AuthenticationOptions()
-            {
+            ClockSkew = TimeSpan.Zero,
+            RequireSignedTokens = true,
 
-                DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme,
-                DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme,
-                DefaultScheme = JwtBearerDefaults.AuthenticationScheme
-            };
-        }
+            ValidateIssuerSigningKey = true,
 
-        static TokenValidationParameters GetTokenValidationParameters(IConfiguration configuration)
-        {
-            return new TokenValidationParameters()
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
+            RequireExpirationTime = true,
+            ValidateLifetime = true,
 
-                ClockSkew = TimeSpan.Zero,
-                RequireSignedTokens = true,
-
-                ValidateIssuerSigningKey = true,
-
-                RequireExpirationTime = true,
-                ValidateLifetime = true,
-
-                ValidAudience = configuration["Jwt:Audience"],
-                ValidIssuer = configuration["Jwt:Issuer"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
-            };
-        }
+            ValidAudience = configuration["Jwt:Audience"],
+            ValidIssuer = configuration["Jwt:Issuer"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
+        };
     }
 }

@@ -21,6 +21,17 @@
           "Url": "https://locaLhost:7025/swagger/v1/swagger.json"
         }
       ]
+    },
+    {
+      "Key": "AuthServer",
+      "TransformByOcelotConfig": true, //copy okay or orginal Data
+      "Config": [
+        {
+          "Name": "AuthServer.API",
+          "Version": "1.0",
+          "Url": "https://localhost:3035/swagger/v1/swagger.json"
+        }
+      ]
     }
 
   ]

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
@@ -31,6 +32,8 @@ public class HelperBaseService
         // services.AddControllers();
 
         services.AddEndpointsApiExplorer();
+       IdentityModelEventSource.ShowPII = true;
+        IdentityModelEventSource.ShowPII = true;    //show detail of error and see problem
 
         //services.AddControllers();
         // services.AddEndpointsApiExplorer();

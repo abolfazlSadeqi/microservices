@@ -62,7 +62,7 @@ namespace Common.UI.Method
             return new TokenValidationParameters()
             {
                 ValidateIssuer = true,
-                ValidateAudience = true,
+                ValidateAudience = false,
 
                 ClockSkew = TimeSpan.Zero,
                 RequireSignedTokens = true,
@@ -72,9 +72,11 @@ namespace Common.UI.Method
                 RequireExpirationTime = true,
                 ValidateLifetime = true,
 
-                ValidAudience = configuration["Jwt:Audience"],
+               // ValidAudience = configuration["Jwt:Audience"],
                 ValidIssuer = configuration["Jwt:Issuer"],
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
+
+
             };
         }
     }

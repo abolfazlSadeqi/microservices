@@ -7,6 +7,7 @@ using FluentValidation.AspNetCore;
 using Infrastructure;
 using Infrastructure.Persistence;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Logging;
 using Serilog;
 using Serilog.Exceptions;
 using Serilog.Sinks.Elasticsearch;
@@ -28,16 +29,16 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        LoggerSerilogELK.ConfigureLogging(Configuration);
+       // LoggerSerilogELK.ConfigureLogging(Configuration);
 
         services.AddApplication();
         services.AddInfrastructure(Configuration);
 
-        services.AddSerilog();
+        //services.AddSerilog();
 
         HelperBaseService.ConfigureService(services, Configuration);
 
-        HelperAuthentication.ConfigureService(services, Configuration);
+      HelperAuthentication.ConfigureService(services, Configuration);
 
         HelperSwagger.ConfigureService(services);
 
@@ -63,7 +64,7 @@ public class Startup
             //  await ApplicationDbContextSeed.SeedSampleDataAsync(dbContext);
         }
 
-       
+
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
@@ -77,7 +78,6 @@ public class Startup
 
 
 
-      
 
 
         app.UseStaticFiles();
@@ -97,8 +97,10 @@ public class Startup
         //    c.SwaggerEndpoint("/swagger/v1/swagger.json", "DefaultCQRSAPI V1");
         //});
 
-       // app.UseSerilogRequestLogging();
+        // app.UseSerilogRequestLogging();
 
+        // app.UseIdentityServer();
+        IdentityModelEventSource.ShowPII = true;
 
         app.UseEndpoints(endpoints =>
         {

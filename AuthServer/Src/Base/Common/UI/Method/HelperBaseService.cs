@@ -20,10 +20,10 @@ public class HelperBaseService
     public static void ConfigureService(IServiceCollection services, IConfiguration configuration)
     {
         
-        services.AddStackExchangeRedisCache(options =>
-        {
-            options.Configuration = configuration.GetConnectionString("RedisConnection");
-        });
+        //services.AddStackExchangeRedisCache(options =>
+        //{
+        //    options.Configuration = configuration.GetConnectionString("RedisConnection");
+        //});
 
         services.AddControllers();
         services.AddHttpContextAccessor();
